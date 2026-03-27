@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Study Planner</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<!-- ===== BACKGROUND LAYERS ===== -->
+<canvas id="particleCanvas"></canvas>
+<div class="floating-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="orb orb4"></div>
+  <div class="orb orb5"></div>
+</div>
+<div class="grid-overlay"></div>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <div class="auth-logo">
+        <div class="auth-icon">
+          <i class="fas fa-brain"></i>
+        </div>
+        <h1 class="auth-title">AI Study Planner</h1>
+        <p class="auth-subtitle">Smart study planning that prevents overload</p>
+      </div>
+
+      <h2 id="authHeading" class="auth-heading">Welcome Back</h2>
+
+      <div class="auth-form">
+        <div class="auth-input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" id="authUsername" placeholder="Username" autocomplete="username">
+        </div>
+        <div class="auth-input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="authPassword" placeholder="Password" autocomplete="current-password">
+        </div>
+
+        <p id="authMessage" class="auth-message"></p>
+
+        <button class="btn-auth" onclick="handleAuth()">
+          <span id="authBtnText">Login</span>
+          <div class="btn-auth-glow"></div>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <div class="auth-switch">
+        <span id="toggleText">Don't have an account?</span>
+        <a onclick="toggleMode()" id="toggleLink">Register</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN PLANNER APP ===== -->
+<div id="appScreen" class="app-screen hidden">
+
+  <header>
+    <div class="header-content">
+      <div class="header-top-bar">
+        <div class="logo-container">
+          <div class="ai-icon">
+            <i class="fas fa-brain"></i>
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring delay"></div>
+          </div>
+        </div>
+        <div class="user-badge" id="userBadge">
+          <i class="fas fa-user-circle"></i>
+          <span id="loggedInUser">User</span>
+          <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <h1 class="glitch" data-text="AI Study Planner">AI Study Planner</h1>
+      <p class="tagline">
+        <span class="typing-text"></span>
+        <span class="cursor">|</span>
+      </p>
+      <div class="header-stats">
+        <div class="stat-pill"><i class="fas fa-bolt"></i><span>AI Powered</span></div>
+        <div class="stat-pill"><i class="fas fa-shield-halved"></i><span>Anti-Overload</span></div>
+        <div class="stat-pill"><i class="fas fa-chart-line"></i><span>Smart Analytics</span></div>
+      </div>
+    </div>
+    <div class="header-wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z" fill="rgba(10,10,30,0.8)"/>
+        <path d="M0,80 C360,20 720,100 1080,50 C1260,30 1380,70 1440,80 L1440,120 L0,120 Z" fill="rgba(10,10,30,1)"/>
+      </svg>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- STUDENT PROFILE -->
+    <div class="card card-profile" data-aos="fade-up">
+      <div class="card-glow"></div>
+      <div class="card-border"></div>
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-user-astronaut"></i></div>
+        <h2>Study Profile</h2>
+        <div class="card-badge">Setup</div>
+      </div>
+      <div class="input-group">
+        <label><i class="fas fa-clock"></i> Hours Available Per Day</label>
+        <div class="input-wrapper">
+          <input type="number" id="hoursPerDay" placeholder="Enter hours..." min="1" max="16">
+          <div class="input-highlight"></div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label><i class="fas fa-sun"></i> Preferred Start Time</label>
+        <div class="input-wrapper">
+          <input type="time" id="startTime">
+          <div class="input-highlight"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveProfile()">
+        <span class="btn-content"><i class="fas fa-save"></i> Save Profile</span>
+        <div class="btn-ripple"></div>
+        <div class="btn-glow"></div>
+      </button>
+    </div>
+
+    <!-- ADD SUBJECT -->
+    <div class="card card-subject" data-aos="fade-up" data-aos-delay="100">
+      <div class="card-glow"></div>
+      <div class="card-border"></div>
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-book-open"></i></div>
+        <h2>Add Subject</h2>
+        <div class="card-badge">New</div>
+      </div>
+      <div class="input-group">
+        <label><i class="fas fa-pen"></i> Subject Name</label>
+        <div class="input-wrapper">
+          <input type="text" id="subjectName" placeholder="e.g., Mathematics...">
+          <div class="input-highlight"></div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label><i class="fas fa-signal"></i> Difficulty Level</label>
+        <div class="difficulty-selector">
+          <button class="diff-btn" data-val="1" onclick="setDifficulty(1)">1</button>
+          <button class="diff-btn" data-val="2" onclick="setDifficulty(2)">2</button>
+          <button class="diff-btn" data-val="3" onclick="setDifficulty(3)">3</button>
+          <button class="diff-btn" data-val="4" onclick="setDifficulty(4)">4</button>
+          <button class="diff-btn" data-val="5" onclick="setDifficulty(5)">5</button>
+        </div>
+        <input type="hidden" id="difficulty" value="1">
+      </div>
+      <div class="input-group">
+        <label><i class="fas fa-calendar"></i> Exam Date</label>
+        <div class="input-wrapper">
+          <input type="date" id="examDate">
+          <div class="input-highlight"></div>
+        </div>
+      </div>
+      <button class="btn btn-success" onclick="addSubject()">
+        <span class="btn-content"><i class="fas fa-plus-circle"></i> Add Subject</span>
+        <div class="btn-ripple"></div>
+        <div class="btn-glow"></div>
+      </button>
+    </div>
+
+    <!-- SUBJECT LIST -->
+    <div class="card card-list" data-aos="fade-up" data-aos-delay="200">
+      <div class="card-glow"></div>
+      <div class="card-border"></div>
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-layer-group"></i></div>
+        <h2>Subjects</h2>
+        <div class="card-counter" id="subjectCount">0</div>
+      </div>
+      <div class="subject-list-container">
+        <div id="subjectList" class="subject-list"></div>
+        <div class="empty-state" id="emptySubjects">
+          <i class="fas fa-inbox"></i>
+          <p>No subjects added yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDY ROADMAP -->
+    <div class="card card-roadmap" data-aos="fade-up" data-aos-delay="300">
+      <div class="card-glow"></div>
+      <div class="card-border"></div>
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-route"></i></div>
+        <h2>Study Roadmap</h2>
+        <div class="card-badge ai">AI</div>
+      </div>
+      <button class="btn btn-ai" onclick="generateSchedule()">
+        <span class="btn-content"><i class="fas fa-wand-magic-sparkles"></i> Generate AI Schedule</span>
+        <div class="btn-particles">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div class="btn-ripple"></div>
+        <div class="btn-glow"></div>
+      </button>
+      <div id="schedule" class="schedule-list"></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="card card-progress" data-aos="fade-up" data-aos-delay="400">
+      <div class="card-glow"></div>
+      <div class="card-border"></div>
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
+        <h2>Progress Dashboard</h2>
+      </div>
+      <div class="progress-circle-container">
+        <div class="progress-circle">
+          <svg viewBox="0 0 120 120">
+            <circle class="progress-bg" cx="60" cy="60" r="52"/>
+            <circle class="progress-fill" id="progressCircle" cx="60" cy="60" r="52"/>
+          </svg>
+          <div class="progress-value">
+            <span id="progressPercent">0</span>
+            <small>%</small>
+          </div>
+        </div>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+          <div class="progress-bar-glow" id="progressBarGlow"></div>
+        </div>
+        <p id="progressText" class="progress-label">0% Completed</p>
+      </div>
+      <div class="progress-buttons">
+        <button class="btn btn-complete" onclick="completeTask()">
+          <span class="btn-content"><i class="fas fa-check-circle"></i> Complete Task</span>
+          <div class="btn-ripple"></div>
+        </button>
+        <button class="btn btn-miss" onclick="missTask()">
+          <span class="btn-content"><i class="fas fa-times-circle"></i> Miss Task</span>
+          <div class="btn-ripple"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- STREAK -->
+    <div class="card card-streak" data-aos="fade-up" data-aos-delay="500">
+      <div class="card-glow"></div>
+      <div class="card-border"></div>
+      <div class="card-header">
+        <div class="card-icon fire"><i class="fas fa-fire"></i></div>
+        <h2>Streak System</h2>
+      </div>
+      <div class="streak-display">
+        <div class="streak-number">
+          <span class="streak-value" id="streak">0</span>
+          <span class="streak-label">days</span>
+        </div>
+        <div class="streak-fire">
+          <div class="flame flame1"></div>
+          <div class="flame flame2"></div>
+          <div class="flame flame3"></div>
+        </div>
+      </div>
+      <div class="streak-milestones">
+        <div class="milestone" data-target="3" id="m3"><i class="fas fa-star"></i><span>3</span></div>
+        <div class="milestone" data-target="5" id="m5"><i class="fas fa-trophy"></i><span>5</span></div>
+        <div class="milestone" data-target="7" id="m7"><i class="fas fa-crown"></i><span>7</span></div>
+        <div class="milestone" data-target="14" id="m14"><i class="fas fa-gem"></i><span>14</span></div>
+        <div class="milestone" data-target="30" id="m30"><i class="fas fa-dragon"></i><span>30</span></div>
+      </div>
+      <p id="reward" class="reward-text"></p>
+    </div>
+
+    <!-- REMINDERS -->
+    <div class="card card-reminders" data-aos="fade-up" data-aos-delay="600">
+      <div class="card-glow"></div>
+      <div class="card-border"></div>
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-bell"></i></div>
+        <h2>Smart Reminders</h2>
+      </div>
+      <div class="reminder-display" id="reminderDisplay">
+        <div class="reminder-icon"><i class="fas fa-robot"></i></div>
+        <p id="reminder">Click below for an AI reminder</p>
+      </div>
+      <button class="btn btn-reminder" onclick="generateReminder()">
+        <span class="btn-content"><i class="fas fa-bell"></i> Generate Reminder</span>
+        <div class="btn-ripple"></div>
+        <div class="btn-glow"></div>
+      </button>
+    </div>
+
+    <!-- FEEDBACK -->
+    <div class="card card-feedback" data-aos="fade-up" data-aos-delay="700">
+      <div class="card-glow"></div>
+      <div class="card-border"></div>
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-comments"></i></div>
+        <h2>AI Feedback</h2>
+      </div>
+      <div class="feedback-display">
+        <div class="ai-avatar">
+          <i class="fas fa-robot"></i>
+          <div class="avatar-pulse"></div>
+        </div>
+        <div class="feedback-bubble">
+          <p id="feedback">Complete study tasks to receive personalized AI feedback</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="card card-analytics" data-aos="fade-up" data-aos-delay="800">
+      <div class="card-glow"></div>
+      <div class="card-border"></div>
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-chart-bar"></i></div>
+        <h2>Analytics</h2>
+      </div>
+      <div class="chart-container">
+        <canvas id="analyticsChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <p>AI Study Planner &copy; 2025 &mdash; Built for Academic Excellence</p>
+      <div class="footer-links">
+        <a href="#"><i class="fab fa-github"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-discord"></i></a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Confetti Canvas -->
+<canvas id="confettiCanvas"></canvas>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="planner.png">
+
+<meta charset="UTF-8">
+<title>AI Study Planner - Login</title>
+
+<link rel="stylesheet" href="auth.css">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="auth-wrapper">
+
+<div class="auth-card">
+
+<h1 class="title">AI Study Planner</h1>
+<p class="subtitle">Smart study planning that prevents overload</p>
+
+<h2 id="authTitle">Login</h2>
+
+<input type="text" id="username" placeholder="Username">
+
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="handleAuth()" class="btn-primary">
+Submit
+</button>
+
+<p id="authMessage"></p>
+
+<div class="switch">
+
+<span id="toggleText">Don't have an account?</span>
+
+<a onclick="toggleMode()">Register</a>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="auth.js"></script>
+
+</body>
+</html>
